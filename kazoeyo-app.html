@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>かぞえよう！</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="alternate icon" href="favicon.svg">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap');
+
+:root {
+  --sky: #FFF8E7;
+  --primary: #FF6B6B;
+  --yellow: #FFD93D;
+  --green: #6BCB77;
+  --blue: #4D96FF;
+  --orange: #FF9F43;
+  --purple: #C77DFF;
+  --text: #3D2B1F;
+  --shadow: rgba(61,43,31,0.13);
+  --card: #ffffff;
+  --radius: 24px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{
+  font-family:'M PLUS Rounded 1c',sans-serif;
+  background:var(--sky);
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  overflow-x:hidden;
+}
+
+/* ===== 背景雲 ===== */
+.bg-clouds{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden;}
+.cloud{position:absolute;background:#fff;border-radius:50px;opacity:0.65;animation:driftCloud linear infinite;}
+.cloud::before,.cloud::after{content:'';position:absolute;background:#fff;border-radius:50%;}
+.c1{width:120px;height:38px;top:6%;animation-duration:30s;animation-delay:-4s;}
+.c1::before{width:58px;height:58px;top:-28px;left:14px;}
+.c1::after{width:38px;height:38px;top:-18px;left:54px;}
+.c2{width:80px;height:26px;top:18%;animation-duration:24s;animation-delay:-14s;}
+.c2::before{width:38px;height:38px;top:-18px;left:10px;}
+.c2::after{width:28px;height:28px;top:-12px;left:36px;}
+.c3{width:160px;height:52px;top:4%;animation-duration:38s;animation-delay:-22s;}
+.c3::before{width:72px;height:72px;top:-36px;left:22px;}
+.c3::after{width:52px;height:52px;top:-26px;left:74px;}
+@keyframes driftCloud{from{transform:translateX(-220px)}to{transform:translateX(calc(100vw + 220px))}}
+
+/* ===== 共通 ===== */
+.screen{display:none;position:relative;z-index:1;width:min(94vw,520px);padding-bottom:40px;}
+.screen.active{display:flex;flex-direction:column;align-items:center;}
+
+.app-title{
+  font-family:'M PLUS Rounded 1c',sans-serif;
+  font-size:clamp(2.2rem,9vw,3.4rem);
+  color:var(--primary);
+  text-shadow:4px 4px 0 #FFD93D,8px 8px 0 rgba(255,107,107,0.18);
+  text-align:center;
+  margin-top:28px;margin-bottom:4px;
+}
+.app-subtitle{font-size:0.9rem;color:var(--text);opacity:0.55;text-align:center;margin-bottom:24px;}
+
+.card{
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:20px;
+  box-shadow:0 6px 28px var(--shadow);
+  width:100%;
+  margin-bottom:14px;
+}
+.card-title{
+  font-size:1rem;font-weight:700;color:var(--text);
+  margin-bottom:14px;
+  display:flex;align-items:center;gap:8px;
+}
+
+/* ===== トップ画面 ===== */
+#topScreen .mode-grid{display:flex;flex-direction:column;gap:14px;width:100%;}
+.mode-card{
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:22px 24px;
+  box-shadow:0 6px 28px var(--shadow);
+  display:flex;align-items:center;gap:18px;
+  cursor:pointer;
+  transition:transform 0.15s,box-shadow 0.15s;
+  border:3px solid transparent;
+}
+.mode-card:hover{transform:translateY(-3px);box-shadow:0 10px 36px var(--shadow);}
+.mode-card:active{transform:translateY(1px);}
+.mode-card.mode-1{border-color:#FFD93D;}
+.mode-card.mode-2{border-color:#4D96FF;}
+.mode-card.mode-s{border-color:#e0d8cc;}
+.mode-icon-big{font-size:2.6rem;flex-shrink:0;}
+.mode-text-block{}
+.mode-title-big{
+  font-family:'M PLUS Rounded 1c',sans-serif;
+  font-size:clamp(1.15rem,4.5vw,1.5rem);
+  color:var(--text);display:block;
+}
+.mode-desc-small{font-size:0.78rem;color:#aaa;display:block;margin-top:3px;}
+
+/* ===== せってい画面 ===== */
+.setting-back{
+  align-self:flex-start;
+  background:none;border:none;
+  font-family:'M PLUS Rounded 1c',sans-serif;
+  font-size:0.95rem;color:var(--text);opacity:0.55;
+  cursor:pointer;padding:8px 0 4px;
+  display:flex;align-items:center;gap:4px;
+}
+.setting-back:hover{opacity:1;}
+
+/* セクション区切り */
+.section-label{
+  font-size:0.78rem;font-weight:700;
+  color:var(--text);opacity:0.4;
+  text-transform:uppercase;letter-spacing:0.08em;
+  margin:4px 0 8px;
+  align-self:flex-start;
+  padding-left:4px;
+}
+
+/* トグル行 */
+.toggle-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0;
+  border-bottom:1px solid #f5efe5;
+}
+.toggle-row:last-child{border-bottom:none;}
+.toggle-row-label{font-size:0.95rem;font-weight:700;color:var(--text);}
+.toggle-row-sub{font-size:0.75rem;color:#bbb;margin-top:2px;}
+.toggle{
+  width:46px;height:26px;
+  background:#ddd;border-radius:13px;
+  position:relative;flex-shrink:0;
+  transition:background 0.2s;cursor:pointer;
+}
+.toggle::after{
+  content:'';position:absolute;
+  width:20px;height:20px;background:#fff;border-radius:50%;
+  top:3px;left:3px;transition:transform 0.2s;
+  box-shadow:0 1px 4px rgba(0,0,0,0.22);
+}
+.toggle.on{background:var(--green);}
+.toggle.on::after{transform:translateX(20px);}
+
+/* 単位スイッチグリッド */
+.unit-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:10px;
+}
+.unit-item{
+  display:flex;align-items:center;justify-content:space-between;
+  background:#f8f4ee;border-radius:14px;padding:10px 13px;
+  cursor:pointer;transition:background 0.15s;
+}
+.unit-item:hover{background:#f0e8d8;}
+.unit-item-label{font-size:0.88rem;font-weight:700;color:var(--text);}
+.unit-item-sub{font-size:0.68rem;color:#bbb;}
+.unit-badge{
+  font-size:0.62rem;font-weight:700;
+  padding:2px 6px;border-radius:6px;
+  margin-left:4px;
+}
+.badge-easy{background:#e8f9ec;color:#3d9e47;}
+.badge-hard{background:#fff3e0;color:#b56b1a;}
+
+/* 数値セレクター */
+.num-selector{display:flex;align-items:center;gap:12px;}
+.ns-btn{
+  width:36px;height:36px;border-radius:50%;border:none;
+  background:var(--yellow);color:var(--text);
+  font-size:1.3rem;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 0 #b89b00;transition:all 0.12s;
+  flex-shrink:0;
+}
+.ns-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #b89b00;}
+.ns-val{
+  font-family:'M PLUS Rounded 1c',sans-serif;
+  font-size:1.6rem;color:var(--text);
+  min-width:42px;text-align:center;
+}
+
+/* 名前入力 */
+.name-input{
+  width:100%;padding:12px 16px;
+  border:2px solid #e8ddd0;border-radius:14px;
+  font-family:'M PLUS Rounded 1c',sans-serif;
+  font-size:1rem;color:var(--text);
+  background:#f8f4ee;
+  outline:none;transition:border-color 0.2s;
+}
+.name-input:focus{border-color:var(--blue);}
+.name-preview{
+  margin-top:8px;font-size:0.85rem;color:#aaa;
+  padding:8px 12px;background:#f0f7ff;border-radius:10px;
+  min-height:34px;
+}
+
+/* イラスト管理 */
+.item-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+.item-row{
+  display:flex;align-items:center;gap:10px;
+  background:#f8f4ee;border-radius:14px;padding:10px 14px;
+}
+.item-emoji-disp{font-size:1.8rem;flex-shrink:0;}
+.item-info{flex:1;}
+.item-unit-badge{
+  font-size:0.75rem;font-weight:700;
+  background:#fff3e0;color:#b56b1a;
+  padding:2px 8px;border-radius:8px;display:inline-block;margin-top:2px;
+}
+.item-del{
+  background:none;border:none;font-size:1.2rem;cursor:pointer;
+  opacity:0.4;transition:opacity 0.15s;padding:4px;
+}
+.item-del:hover{opacity:1;}
+.item-toggle{flex-shrink:0;}
+
+/* 追加フォーム（イラスト） */
+.add-item-form{
+  display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+  background:#f0f7ff;border-radius:16px;padding:14px;
+}
+.add-emoji-input{
+  border:2px solid #d4e8ff;border-radius:10px;
+  font-family:'M PLUS Rounded 1c',sans-serif;
+  font-size:1.5rem;padding:6px 8px;
+  background:#fff;outline:none;transition:border-color 0.2s;
+  color:var(--text);width:62px;text-align:center;
+}
+.add-emoji-input:focus{border-color:var(--blue);}
+.unit-select{
+  border:2px solid #d4e8ff;border-radius:10px;
+  font-family:'M PLUS Rounded 1c',sans-serif;
+  font-size:1rem;padding:8px 10px;
+  background:#fff;outline:none;color:var(--text);
+  cursor:pointer;flex:1;min-width:80px;
+  transition:border-color 0.2s;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23aaa' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+  padding-right:30px;
+}
+.unit-select:focus{border-color:var(--blue);}
+.add-btn{
+  padding:9px 18px;border:none;border-radius:10px;
+  background:var(--blue);color:#fff;
+  font-family:'M PLUS Rounded 1c',sans-serif;font-size:1rem;
+  cursor:pointer;box-shadow:0 3px 0 #1a5fcc;
+  transition:all 0.12s;white-space:nowrap;
+}
+.add-btn:hover{transform:translateY(-2px);box-shadow:0 5px 0 #1a5fcc;}
+.add-btn:active{transform:translateY(1px);box-shadow:0 1px 0 #1a5fcc;}
+
+/* 単位管理 */
+.unit-manage-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+.unit-manage-chip{
+  display:flex;align-items:center;gap:6px;
+  background:#f8f4ee;border-radius:50px;
+  padding:7px 12px 7px 14px;
+  font-size:0.9rem;font-weight:700;color:var(--text);
+}
+.unit-chip-del{
+  background:none;border:none;font-size:0.9rem;cursor:pointer;
+  opacity:0.4;transition:opacity 0.15s;padding:2px;line-height:1;
+}
+.unit-chip-del:hover{opacity:1;}
+.add-unit-form{
+  display:flex;gap:8px;align-items:center;
+  background:#f0fff4;border-radius:16px;padding:12px;
+}
+.add-unit-input{
+  border:2px solid #c3f0ce;border-radius:10px;
+  font-family:'M PLUS Rounded 1c',sans-serif;
+  font-size:1rem;padding:8px 12px;
+  background:#fff;outline:none;color:var(--text);
+  flex:1;transition:border-color 0.2s;
+}
+.add-unit-input:focus{border-color:var(--green);}
+.add-unit-btn{
+  padding:9px 16px;border:none;border-radius:10px;
+  background:var(--green);color:#fff;
+  font-family:'M PLUS Rounded 1c',sans-serif;font-size:1rem;
+  cursor:pointer;box-shadow:0 3px 0 #3d9e47;
+  transition:all 0.12s;white-space:nowrap;
+}
+.add-unit-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #3d9e47;}
+
+/* ===== ゲーム画面（全画面フレックス） ===== */
+#gameScreen{
+  position:fixed;inset:0;
+  width:min(90vw,480px);
+  left:50%;transform:translateX(-50%);
+  height:100dvh;
+  display:none;flex-direction:column;
+  padding:6px 0;
+  padding-bottom:max(env(safe-area-inset-bottom,0px),6px);
+}
+#gameScreen.active{display:flex;}
+
+/* ── 比率スロット: 1 / 2 / 4 / 2 / 1 ── */
+.game-prog-area{
+  flex:1;min-height:0;
+  display:flex;align-items:center;
+  width:100%;
+}
+.game-illust-area{
+  flex:2;min-height:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--card);
+  border-radius:18px;
+  box-shadow:0 4px 18px var(--shadow);
+  padding:2px 4px;
+  overflow:visible;
+  width:100%;
+}
+.game-numpad-area{
+  flex:4;min-height:0;
+  display:flex;align-items:center;justify-content:center;
+  width:100%;
+  padding:4px 0;
+}
+.game-unit-area{
+  flex:2;min-height:0;
+  display:flex;align-items:center;justify-content:center;
+  width:100%;
+  padding:2px 0;
+}
+.game-btn-area{
+  flex:1;min-height:0;
+  display:flex;align-items:center;
+  width:100%;
+  padding:2px 0;
+}
+
+/* プログレスバー */
+.progress-wrap{
+  background:var(--card);border-radius:50px;
+  padding:6px 14px;
+  box-shadow:0 3px 12px var(--shadow);
+  width:100%;
+  display:flex;align-items:center;gap:10px;
+}
+.prog-label{font-size:0.75rem;color:#aaa;white-space:nowrap;}
+.prog-track{flex:1;height:10px;background:#f0e8d8;border-radius:5px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,#FF6B6B,#FFD93D);border-radius:5px;transition:width 0.4s ease;}
+.prog-score{font-size:0.9rem;font-weight:700;color:var(--text);white-space:nowrap;}
+
+/* イラストエリア */
+.q-label{font-size:0.72rem;color:var(--text);opacity:0.45;text-align:center;margin-bottom:2px;}
+.emoji-grid{
+  display:flex;flex-wrap:wrap;justify-content:center;
+  gap:3px;align-items:center;
+  overflow:hidden;width:100%;
+}
+.emoji-item{
+  font-size:clamp(1.6rem,5.5vw,2.8rem);
+  animation:popIn 0.32s cubic-bezier(0.175,0.885,0.32,1.275) both;
+  filter:drop-shadow(1px 2px 3px rgba(0,0,0,0.1));user-select:none;
+  line-height:1.15;
+}
+@keyframes popIn{from{transform:scale(0) rotate(-12deg);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* ── 数字パッド（3列固定、セルはアスペクト比で高さ確保） ── */
+.numpad{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  grid-template-rows:repeat(4,1fr);
+  gap:clamp(5px,1.5vw,10px);
+  width:100%;
+  height:100%;
+}
+.numpad-btn{
+  border:none;border-radius:14px;
+  font-family:'M PLUS Rounded 1c',sans-serif;
+  font-size:clamp(1.3rem,5vw,2rem);
+  font-weight:700;cursor:pointer;color:#fff;
+  transition:transform 0.1s,filter 0.1s;
+  display:flex;align-items:center;justify-content:center;
+  width:100%;height:100%;
+}
+.numpad-btn:active{transform:scale(0.93) translateY(2px) !important;filter:brightness(0.88);}
+.numpad-btn.selected{outline:4px solid var(--text);outline-offset:2px;transform:scale(1.05);filter:brightness(1.08);}
+.numpad-btn.empty{background:transparent !important;box-shadow:none !important;cursor:default;pointer-events:none;}
+
+/* ── 単位ボタン（2×2固定グリッド） ── */
+.unit-grid-play{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  grid-template-rows:repeat(2,1fr);
+  gap:clamp(5px,1.5vw,10px);
+  width:100%;
+  height:100%;
+}
+.unit-btn{
+  border:3px solid transparent;border-radius:12px;
+  font-family:'M PLUS Rounded 1c',sans-serif;
+  font-size:clamp(1rem,3.8vw,1.3rem);
+  font-weight:700;cursor:pointer;
+  background:#f5f0e8;color:var(--text);
+  transition:all 0.12s;
+  display:flex;align-items:center;justify-content:center;
+  width:100%;height:100%;
+  overflow:hidden;
+}
+.unit-btn:active{transform:scale(0.94);}
+.unit-btn.selected{
+  background:var(--yellow);border-color:var(--text);
+  box-shadow:0 3px 0 rgba(0,0,0,0.15);
+  transform:scale(1.04);
+}
+
+/* こたえるボタン */
+.check-btn{
+  display:block;width:100%;height:100%;min-height:44px;
+  border:none;border-radius:14px;
+  background:var(--green);color:#fff;
+  font-family:'M PLUS Rounded 1c',sans-serif;font-size:clamp(1rem,3.8vw,1.4rem);
+  cursor:pointer;box-shadow:0 4px 0 #3d9e47;transition:all 0.12s;
+}
+.check-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 0 #3d9e47;}
+.check-btn:active{transform:translateY(2px);box-shadow:0 2px 0 #3d9e47;}
+.check-btn:disabled{opacity:0.38;cursor:not-allowed;}
+
+/* ===== オーバーレイ ===== */
+.overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:200;flex-direction:column;gap:10px;}
+.overlay.show{display:flex;}
+.ov-bg{position:absolute;inset:0;backdrop-filter:blur(5px);}
+.ov-correct .ov-bg{background:rgba(107,203,119,0.52);}
+.ov-wrong   .ov-bg{background:rgba(255,107,107,0.45);}
+.ov-mark{position:relative;z-index:1;font-size:clamp(4.5rem,22vw,10rem);animation:markBounce 0.5s cubic-bezier(0.175,0.885,0.32,1.275);filter:drop-shadow(0 8px 22px rgba(0,0,0,0.18));}
+@keyframes markBounce{0%{transform:scale(0);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.ov-msg{position:relative;z-index:1;font-family:'M PLUS Rounded 1c',sans-serif;font-size:clamp(1.2rem,5vw,2rem);color:#fff;text-shadow:2px 2px 8px rgba(0,0,0,0.25);text-align:center;padding:0 16px;}
+.ov-next{position:relative;z-index:1;margin-top:8px;padding:13px 34px;border:none;border-radius:50px;font-family:'M PLUS Rounded 1c',sans-serif;font-size:clamp(1rem,3.8vw,1.35rem);background:#fff;color:var(--text);cursor:pointer;box-shadow:0 5px 18px rgba(0,0,0,0.18);transition:transform 0.12s;}
+.ov-next:hover{transform:scale(1.06);}
+
+/* ===== リザルト ===== */
+#resultScreen .result-card{
+  background:var(--card);border-radius:28px;
+  padding:clamp(22px,6vw,42px);
+  box-shadow:0 8px 32px var(--shadow);
+  text-align:center;width:100%;
+}
+.result-title{font-family:'M PLUS Rounded 1c',sans-serif;font-size:clamp(1.6rem,6.5vw,2.6rem);color:var(--primary);text-shadow:3px 3px 0 #FFD93D;margin-bottom:6px;}
+.result-to{font-size:0.9rem;color:#aaa;margin-bottom:4px;}
+.result-stars{font-size:clamp(1.6rem,7vw,2.8rem);letter-spacing:4px;margin-bottom:14px;}
+.result-score-big{font-family:'M PLUS Rounded 1c',sans-serif;font-size:clamp(2.8rem,13vw,5.5rem);color:var(--text);line-height:1;}
+.result-score-big span{font-size:0.42em;color:#aaa;}
+.result-of{font-size:0.9rem;color:#aaa;margin-bottom:16px;}
+.result-detail{display:flex;justify-content:center;gap:22px;margin-bottom:16px;}
+.rdi{text-align:center;}
+.rdi-num{font-family:'M PLUS Rounded 1c',sans-serif;font-size:1.9rem;font-weight:700;}
+.rdi-num.c{color:var(--green);}
+.rdi-num.w{color:var(--primary);}
+.rdi-lbl{font-size:0.78rem;color:#aaa;}
+.result-msg{font-size:clamp(0.9rem,3.2vw,1.1rem);color:var(--text);font-weight:700;background:#f8f4ee;border-radius:14px;padding:13px;margin-bottom:22px;}
+.result-btns{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;}
+.r-btn-retry{padding:13px 28px;border:none;border-radius:50px;background:var(--primary);color:#fff;font-family:'M PLUS Rounded 1c',sans-serif;font-size:clamp(0.95rem,3.2vw,1.2rem);cursor:pointer;box-shadow:0 4px 0 #c04040;transition:all 0.12s;}
+.r-btn-retry:hover{transform:translateY(-2px);box-shadow:0 6px 0 #c04040;}
+.r-btn-top{padding:13px 28px;border:3px solid #ddd;border-radius:50px;background:#fff;color:var(--text);font-family:'M PLUS Rounded 1c',sans-serif;font-size:clamp(0.95rem,3.2vw,1.2rem);cursor:pointer;transition:all 0.12s;}
+.r-btn-top:hover{border-color:var(--blue);transform:scale(1.03);}
+
+/* ===== ボタン色 ===== */
+.c0{background:#FF6B6B;box-shadow:0 4px 0 #c04040}
+.c1{background:#FF9F43;box-shadow:0 4px 0 #b56b1a}
+.c2{background:#FFD93D;box-shadow:0 4px 0 #b89b00;color:#3D2B1F !important}
+.c3{background:#6BCB77;box-shadow:0 4px 0 #3d9e47}
+.c4{background:#4D96FF;box-shadow:0 4px 0 #1a5fcc}
+.c5{background:#C77DFF;box-shadow:0 4px 0 #8a3dcc}
+.c6{background:#FF6B9D;box-shadow:0 4px 0 #cc3066}
+.c7{background:#00C9A7;box-shadow:0 4px 0 #008f76}
+.c8{background:#FF8C42;box-shadow:0 4px 0 #c45e1a}
+.c9{background:#845EC2;box-shadow:0 4px 0 #5a2d99}
+
+canvas{position:fixed;inset:0;pointer-events:none;z-index:199;}
+
+/* ===== メニューボタン ===== */
+.menu-open-btn{
+  flex-shrink:0;
+  width:36px;height:36px;
+  border:none;border-radius:10px;
+  background:var(--card);
+  color:var(--text);
+  font-size:1.2rem;
+  cursor:pointer;
+  box-shadow:0 3px 10px var(--shadow);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform 0.12s,box-shadow 0.12s;
+  margin-right:8px;
+}
+.menu-open-btn:active{transform:scale(0.92);}
+
+/* ===== ポーズメニュー ===== */
+.pause-card{
+  position:relative;z-index:1;
+  background:var(--card);
+  border-radius:28px;
+  padding:28px 24px;
+  width:min(80vw,300px);
+  box-shadow:0 12px 40px rgba(0,0,0,0.25);
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+  animation:pauseIn 0.22s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+@keyframes pauseIn{
+  from{transform:scale(0.8);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+.pause-title{
+  font-family:'M PLUS Rounded 1c',sans-serif;
+  font-size:1.4rem;color:var(--text);
+  margin-bottom:4px;
+}
+.pause-info{
+  font-size:0.85rem;color:#aaa;
+  text-align:center;line-height:1.6;
+  background:#f8f4ee;border-radius:12px;
+  padding:10px 16px;width:100%;
+}
+.pause-btn{
+  width:100%;padding:14px;
+  border:none;border-radius:16px;
+  font-family:'M PLUS Rounded 1c',sans-serif;
+  font-size:1.1rem;cursor:pointer;
+  transition:transform 0.12s,box-shadow 0.12s;
+}
+.pause-resume{
+  background:var(--green);color:#fff;
+  box-shadow:0 4px 0 #3d9e47;
+}
+.pause-resume:hover{transform:translateY(-2px);box-shadow:0 6px 0 #3d9e47;}
+.pause-resume:active{transform:translateY(2px);box-shadow:0 2px 0 #3d9e47;}
+.pause-top{
+  background:#f5f0e8;color:var(--text);
+  box-shadow:0 4px 0 #d4c8b0;
+}
+.pause-top:hover{transform:translateY(-2px);box-shadow:0 6px 0 #d4c8b0;}
+.pause-top:active{transform:translateY(2px);box-shadow:0 2px 0 #d4c8b0;}
+
+/* ポーズ時のov-bg */
+#ovPause .ov-bg{background:rgba(0,0,0,0.45);backdrop-filter:blur(3px);}
+</style>
+</head>
+<body>
+
+<div class="bg-clouds">
+  <div class="cloud c1" style="left:-150px"></div>
+  <div class="cloud c2" style="left:-100px;animation-delay:-9s"></div>
+  <div class="cloud c3" style="left:-200px;animation-delay:-20s"></div>
+</div>
+<canvas id="confettiCanvas"></canvas>
+
+<!-- ===== 正解オーバーレイ ===== -->
+<div class="overlay ov-correct" id="ovCorrect">
+  <div class="ov-bg"></div>
+  <div class="ov-mark">⭕</div>
+  <div class="ov-msg" id="ovCorrectMsg">すごい！ぴったり！</div>
+  <button class="ov-next" id="ovNextBtn" onclick="nextQ()">つぎへ ▶</button>
+</div>
+
+<!-- ===== 不正解オーバーレイ ===== -->
+<div class="overlay ov-wrong" id="ovWrong">
+  <div class="ov-bg"></div>
+  <div class="ov-mark">❌</div>
+  <div class="ov-msg" id="ovWrongMsg">もういちど！</div>
+  <button class="ov-next" id="ovWrongNextBtn" onclick="dismissWrong()">つぎへ ▶</button>
+</div>
+
+<!-- ===== トップ画面 ===== -->
+<div class="screen active" id="topScreen">
+  <div class="app-title">🌟 かぞえよう！</div>
+  <div class="app-subtitle">あそびかたを えらんでね</div>
+  <div class="mode-grid" style="width:100%">
+    <div class="mode-card mode-1" onclick="startMode(1)">
+      <div class="mode-icon-big">🔢</div>
+      <div class="mode-text-block">
+        <span class="mode-title-big">１．かずかぞえ</span>
+        <span class="mode-desc-small">イラストのかずを すうじで こたえよう</span>
+      </div>
+    </div>
+    <div class="mode-card mode-2" onclick="startMode(2)">
+      <div class="mode-icon-big">🔢📝</div>
+      <div class="mode-text-block">
+        <span class="mode-title-big">２．かず＋たんい</span>
+        <span class="mode-desc-small">すうじと たんいを りょうほう こたえよう</span>
+      </div>
+    </div>
+    <div class="mode-card mode-s" onclick="showScreen('settingScreen')">
+      <div class="mode-icon-big">⚙️</div>
+      <div class="mode-text-block">
+        <span class="mode-title-big">３．せってい</span>
+        <span class="mode-desc-small">もんだいすう・たんい・なまえなど</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== せってい画面 ===== -->
+<div class="screen" id="settingScreen">
+  <button class="setting-back" onclick="showScreen('topScreen')">← もどる</button>
+  <div class="app-title" style="font-size:clamp(1.6rem,6vw,2.4rem);margin-top:4px;">⚙️ せってい</div>
+
+  <!-- こどもの名前 -->
+  <div class="section-label">👤 こどもの なまえ</div>
+  <div class="card">
+    <div class="card-title">なまえ を いれてね</div>
+    <input class="name-input" type="text" id="childNameInput" placeholder="ゆうと" maxlength="10" oninput="updateNamePreview()">
+    <div class="name-preview" id="namePreview">「ゆうとくん、いっしょに かぞえよう！」</div>
+  </div>
+
+  <!-- もんだいすう -->
+  <div class="section-label">📋 もんだいすう</div>
+  <div class="card">
+    <div class="toggle-row" style="border:none;padding:0">
+      <div>
+        <div class="toggle-row-label">なんもん やる？</div>
+        <div class="toggle-row-sub">1ゲームのもんだいすう</div>
+      </div>
+      <div class="num-selector">
+        <button class="ns-btn" onclick="changeQCount(-1)">－</button>
+        <div class="ns-val" id="qCountVal">10</div>
+        <button class="ns-btn" onclick="changeQCount(1)">＋</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- かずの範囲 -->
+  <div class="section-label">🔢 かずの はんい</div>
+  <div class="card">
+    <div class="toggle-row" style="border:none;padding-bottom:8px">
+      <div>
+        <div class="toggle-row-label">さいしょの かず</div>
+      </div>
+      <div class="num-selector">
+        <button class="ns-btn" onclick="changeRange('min',-1)">－</button>
+        <div class="ns-val" id="rangeMinVal">1</div>
+        <button class="ns-btn" onclick="changeRange('min',1)">＋</button>
+      </div>
+    </div>
+    <div class="toggle-row" style="border:none;padding-top:8px">
+      <div>
+        <div class="toggle-row-label">さいごの かず</div>
+      </div>
+      <div class="num-selector">
+        <button class="ns-btn" onclick="changeRange('max',-1)">－</button>
+        <div class="ns-val" id="rangeMaxVal">10</div>
+        <button class="ns-btn" onclick="changeRange('max',1)">＋</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BGM・効果音 -->
+  <div class="section-label">🔊 おと</div>
+  <div class="card">
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-row-label">🎵 BGM</div>
+        <div class="toggle-row-sub">ゲーム中のおんがく</div>
+      </div>
+      <div class="toggle on" id="toggleBGM" onclick="toggleSetting('bgm')"></div>
+    </div>
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-row-label">👏 こうかおん</div>
+        <div class="toggle-row-sub">せいかい・ふせいかいのおと</div>
+      </div>
+      <div class="toggle on" id="toggleSFX" onclick="toggleSetting('sfx')"></div>
+    </div>
+  </div>
+
+  <!-- 単位管理 -->
+  <div class="section-label">📝 たんい の かんり</div>
+  <div class="card">
+    <div class="card-title">とうろく たんい いちらん</div>
+    <div class="unit-manage-list" id="unitManageList"></div>
+    <div class="add-unit-form">
+      <input class="add-unit-input" type="text" id="addUnitInput" placeholder="新しい たんい" maxlength="5">
+      <button class="add-unit-btn" onclick="addUnit()">ついか</button>
+    </div>
+  </div>
+
+  <!-- たんい（モード2用） -->
+  <div class="section-label">📝 たんい の せってい（モード２ようの）</div>
+  <div class="card">
+    <div class="card-title">つかう たんい を えらぼう</div>
+    <div class="unit-grid" id="unitGrid"></div>
+  </div>
+
+  <!-- イラスト管理 -->
+  <div class="section-label">🎨 イラスト の かんり</div>
+  <div class="card">
+    <div class="card-title">イラスト いちらん</div>
+    <div class="item-list" id="itemList"></div>
+    <div style="font-size:0.8rem;color:#aaa;margin-bottom:10px;">➕ イラストを ついか する</div>
+    <div class="add-item-form">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <input class="add-emoji-input" type="text" id="addEmoji" placeholder="👆"
+          inputmode="text" autocomplete="off" maxlength="8"
+          oninput="onEmojiInput(this)">
+        <div id="emojiHint" style="font-size:0.65rem;color:#aaa;text-align:center;line-height:1.3;">
+          えもじキーボードで<br>えらんでね
+        </div>
+      </div>
+      <select class="unit-select" id="addUnitSelect"></select>
+      <button class="add-btn" onclick="addItem()">ついか</button>
+    </div>
+  </div>
+
+  <button class="check-btn" style="margin-top:8px;font-size:1.1rem;" onclick="saveAndBack()">✅ ほぞんして もどる</button>
+</div>
+
+<!-- ===== ポーズメニュー ===== -->
+<div class="overlay" id="ovPause">
+  <div class="ov-bg" onclick="closePauseMenu()"></div>
+  <div class="pause-card">
+    <div class="pause-title">⏸ メニュー</div>
+    <div class="pause-info" id="pauseInfo"></div>
+    <button class="pause-btn pause-resume" onclick="closePauseMenu()">
+      ▶ つづける
+    </button>
+    <button class="pause-btn pause-top" onclick="goTopFromGame()">
+      🏠 タイトルに もどる
+    </button>
+  </div>
+</div>
+
+<!-- ===== ゲーム画面 ===== -->
+<div class="screen" id="gameScreen">
+  <!-- 比率1: プログレス -->
+  <div class="game-prog-area">
+    <button class="menu-open-btn" onclick="openPauseMenu()" aria-label="メニュー">☰</button>
+    <div class="progress-wrap">
+      <span class="prog-label" id="progLabel">1/10もんめ</span>
+      <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+      <span class="prog-score" id="progScore">⭕0</span>
+    </div>
+  </div>
+  <!-- 比率2: イラスト -->
+  <div class="game-illust-area">
+    <div class="q-label">イラストを かぞえよう！</div>
+    <div class="emoji-grid" id="emojiGrid"></div>
+  </div>
+  <!-- 比率4: 数字パッド -->
+  <div class="game-numpad-area">
+    <div class="numpad" id="numBtns"></div>
+  </div>
+  <!-- 比率2: 単位（モード2のみ） -->
+  <div class="game-unit-area" id="unitSection" style="display:none;flex:0;">
+    <div class="unit-grid-play" id="unitBtns"></div>
+  </div>
+  <!-- 比率1: こたえるボタン -->
+  <div class="game-btn-area">
+    <button class="check-btn" id="checkBtn" onclick="checkAnswer()" disabled>こたえる！</button>
+  </div>
+</div>
+
+<!-- ===== リザルト画面 ===== -->
+<div class="screen" id="resultScreen">
+  <div class="result-card" style="margin-top:28px;">
+    <div class="result-title">🎊 けっか はっぴょう！</div>
+    <div class="result-to" id="resultTo"></div>
+    <div class="result-stars" id="resultStars"></div>
+    <div class="result-score-big" id="resultBig"></div>
+    <div class="result-of" id="resultOf">もんちゅう</div>
+    <div class="result-detail">
+      <div class="rdi"><div class="rdi-num c" id="rCorrect">0</div><div class="rdi-lbl">⭕せいかい</div></div>
+      <div class="rdi"><div class="rdi-num w" id="rWrong">0</div><div class="rdi-lbl">❌ざんねん</div></div>
+    </div>
+    <div class="result-msg" id="rMsg"></div>
+    <div class="result-btns">
+      <button class="r-btn-retry" onclick="retryGame()">🔄 もう いちど</button>
+      <button class="r-btn-top" onclick="showScreen('topScreen')">🏠 トップに もどる</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== デフォルトデータ =====
+const DEFAULT_ITEMS = [
+  {emoji:'🐶',unit:'ひき',on:true},{emoji:'🐱',unit:'ひき',on:true},
+  {emoji:'🐰',unit:'わ',on:true},{emoji:'🐸',unit:'ひき',on:true},
+  {emoji:'🐠',unit:'ひき',on:true},{emoji:'🐤',unit:'わ',on:true},
+  {emoji:'🦊',unit:'ひき',on:true},{emoji:'🐻',unit:'とう',on:true},
+  {emoji:'🍎',unit:'こ',on:true},{emoji:'🍊',unit:'こ',on:true},
+  {emoji:'🍓',unit:'こ',on:true},{emoji:'🍇',unit:'ふさ',on:true},
+  {emoji:'🍌',unit:'ほん',on:true},{emoji:'🌸',unit:'ほん',on:true},
+  {emoji:'⭐',unit:'こ',on:true},{emoji:'🎈',unit:'こ',on:true},
+  {emoji:'🚗',unit:'だい',on:true},{emoji:'🚂',unit:'りょう',on:true},
+  {emoji:'✈️',unit:'き',on:true},{emoji:'🍕',unit:'まい',on:true},
+];
+
+const DEFAULT_UNIT_CONFIG = [
+  {unit:'こ',    sub:'りんご・ほし など',easy:true},
+  {unit:'ひき',  sub:'いぬ・ねこ など',  easy:true},
+  {unit:'わ',    sub:'うさぎ など',       easy:true},
+  {unit:'ほん',  sub:'バナナ・はな など',easy:true},
+  {unit:'まい',  sub:'ピザ など',         easy:true},
+  {unit:'とう',  sub:'くま など',         easy:false},
+  {unit:'ふさ',  sub:'ぶどう など',       easy:false},
+  {unit:'だい',  sub:'くるま など',       easy:false},
+  {unit:'りょう',sub:'でんしゃ など',     easy:false},
+  {unit:'き',    sub:'ひこうき など',     easy:false},
+];
+
+// ===== 設定 =====
+const STORAGE_KEY = 'kazoeyo_settings_v1';
+
+const DEFAULT_SETTINGS = {
+  childName: '',
+  qCount: 10,
+  rangeMin: 1,
+  rangeMax: 10,
+  bgm: true,
+  sfx: true,
+  enabledUnits: Object.fromEntries(DEFAULT_UNIT_CONFIG.map(u=>[u.unit, u.easy])),
+  items: JSON.parse(JSON.stringify(DEFAULT_ITEMS)),
+  unitList: DEFAULT_UNIT_CONFIG.map(u=>u.unit),
+};
+
+function loadSettings() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+    const parsed = JSON.parse(saved);
+    // デフォルトとマージ（新しいキーが追加されても壊れないように）
+    return Object.assign({}, JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), parsed);
+  } catch(e) {
+    return JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+  }
+}
+
+function saveSettings() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+  } catch(e) {
+    console.warn('せってい の ほぞん に しっぱい しました', e);
+  }
+}
+
+let settings = loadSettings();
+
+// ===== ゲーム状態 =====
+let gameMode = 1;
+let qNum = 0, scoreOk = 0, scoreNg = 0;
+let curItem, curCount;
+let selNum = null, selUnit = null;
+
+// ===== 画面切替 =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ===== トップ → ゲーム =====
+function startMode(m) {
+  gameMode = m;
+  qNum = 0; scoreOk = 0; scoreNg = 0;
+  const unitSec = document.getElementById('unitSection');
+  if (m === 2) {
+    unitSec.style.display = 'flex';
+    unitSec.style.flex = '2';
+  } else {
+    unitSec.style.display = 'none';
+    unitSec.style.flex = '0';
+  }
+  const name = settings.childName.trim();
+  showScreen('gameScreen');
+  newQuestion();
+}
+
+// ===== 設定画面 =====
+function openSetting() {
+  renderUnitGrid();
+  renderItemList();
+  renderUnitManageList();
+  refreshUnitSelect();
+  const inp = document.getElementById('childNameInput');
+  inp.value = settings.childName;
+  updateNamePreview();
+  document.getElementById('qCountVal').textContent = settings.qCount;
+  document.getElementById('rangeMinVal').textContent = settings.rangeMin;
+  document.getElementById('rangeMaxVal').textContent = settings.rangeMax;
+  document.getElementById('toggleBGM').classList.toggle('on', settings.bgm);
+  document.getElementById('toggleSFX').classList.toggle('on', settings.sfx);
+  showScreen('settingScreen');
+}
+
+document.querySelector('.mode-card.mode-s').addEventListener('click', e => {
+  e.stopPropagation();
+  openSetting();
+});
+// トップのmode-sクリックをopenSettingに置き換え
+document.querySelectorAll('.mode-card').forEach(c => {
+  if (c.classList.contains('mode-s')) {
+    c.onclick = null;
+    c.addEventListener('click', () => openSetting());
+  }
+});
+
+function updateNamePreview() {
+  const v = document.getElementById('childNameInput').value.trim();
+  settings.childName = v;
+  const p = document.getElementById('namePreview');
+  p.textContent = v
+    ? `「${v}ちゃん、いっしょに かぞえよう！」`
+    : '「なまえを いれると メッセージが でるよ！」';
+}
+
+function changeQCount(d) {
+  settings.qCount = Math.max(3, Math.min(20, settings.qCount + d));
+  document.getElementById('qCountVal').textContent = settings.qCount;
+}
+
+function changeRange(key, d) {
+  if (key === 'min') {
+    settings.rangeMin = Math.max(1, Math.min(settings.rangeMax - 1, settings.rangeMin + d));
+    document.getElementById('rangeMinVal').textContent = settings.rangeMin;
+  } else {
+    settings.rangeMax = Math.max(settings.rangeMin + 1, Math.min(20, settings.rangeMax + d));
+    document.getElementById('rangeMaxVal').textContent = settings.rangeMax;
+  }
+}
+
+function toggleSetting(key) {
+  settings[key] = !settings[key];
+  if (key === 'bgm') document.getElementById('toggleBGM').classList.toggle('on', settings.bgm);
+  if (key === 'sfx') document.getElementById('toggleSFX').classList.toggle('on', settings.sfx);
+}
+
+function renderUnitGrid() {
+  const grid = document.getElementById('unitGrid');
+  grid.innerHTML = '';
+  settings.unitList.forEach(unit => {
+    const cfg = DEFAULT_UNIT_CONFIG.find(u=>u.unit===unit);
+    const sub  = cfg ? cfg.sub : 'ついかした たんい';
+    const easy = cfg ? cfg.easy : null;
+    const div = document.createElement('div');
+    div.className = 'unit-item';
+    div.onclick = () => {
+      settings.enabledUnits[unit] = !settings.enabledUnits[unit];
+      saveSettings();
+      renderUnitGrid();
+    };
+    const on = settings.enabledUnits[unit];
+    let badge = '';
+    if (easy === true)  badge = `<span class="unit-badge badge-easy">かんたん</span>`;
+    if (easy === false) badge = `<span class="unit-badge badge-hard">むずかしい</span>`;
+    div.innerHTML = `
+      <div>
+        <div class="unit-item-label">${unit}${badge}</div>
+        <div class="unit-item-sub">${sub}</div>
+      </div>
+      <div class="toggle ${on?'on':''}"></div>`;
+    grid.appendChild(div);
+  });
+}
+
+// 単位管理リスト
+function renderUnitManageList() {
+  const list = document.getElementById('unitManageList');
+  list.innerHTML = '';
+  settings.unitList.forEach((unit, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'unit-manage-chip';
+    chip.innerHTML = `
+      <span>${unit}</span>
+      <button class="unit-chip-del" onclick="deleteUnit(${i})" title="さくじょ">✕</button>`;
+    list.appendChild(chip);
+  });
+}
+
+function addUnit() {
+  const inp = document.getElementById('addUnitInput');
+  const val = inp.value.trim();
+  if (!val) return;
+  if (settings.unitList.includes(val)) { alert('すでに とうろくされています'); return; }
+  settings.unitList.push(val);
+  if (settings.enabledUnits[val] === undefined) settings.enabledUnits[val] = true;
+  inp.value = '';
+  saveSettings();
+  renderUnitManageList();
+  renderUnitGrid();
+  refreshUnitSelect();
+}
+
+function deleteUnit(i) {
+  const unit = settings.unitList[i];
+  const used = settings.items.some(it => it.unit === unit);
+  if (used && !confirm(`「${unit}」を つかっている イラストが あります。\nさくじょ しますか？`)) return;
+  settings.unitList.splice(i, 1);
+  delete settings.enabledUnits[unit];
+  saveSettings();
+  renderUnitManageList();
+  renderUnitGrid();
+  refreshUnitSelect();
+}
+
+// 追加フォームのプルダウン更新
+function refreshUnitSelect() {
+  const sel = document.getElementById('addUnitSelect');
+  const prev = sel.value;
+  sel.innerHTML = '';
+  settings.unitList.forEach(u => {
+    const opt = document.createElement('option');
+    opt.value = u; opt.textContent = u;
+    sel.appendChild(opt);
+  });
+  if (settings.unitList.includes(prev)) sel.value = prev;
+}
+
+function renderItemList() {
+  const list = document.getElementById('itemList');
+  list.innerHTML = '';
+  settings.items.forEach((it, i) => {
+    const row = document.createElement('div');
+    row.className = 'item-row';
+    row.innerHTML = `
+      <div class="item-emoji-disp">${it.emoji}</div>
+      <div class="item-info">
+        <div style="font-size:0.85rem;font-weight:700;color:var(--text)">${it.emoji}</div>
+        <span class="item-unit-badge">${it.unit}</span>
+      </div>
+      <div class="toggle item-toggle ${it.on?'on':''}" onclick="toggleItem(${i})"></div>
+      <button class="item-del" onclick="deleteItem(${i})">🗑️</button>`;
+    list.appendChild(row);
+  });
+}
+
+function toggleItem(i) {
+  settings.items[i].on = !settings.items[i].on;
+  saveSettings();
+  renderItemList();
+}
+
+function deleteItem(i) {
+  if (settings.items.length <= 3) { alert('イラストは3つ以上ひつようです！'); return; }
+  settings.items.splice(i, 1);
+  saveSettings();
+  renderItemList();
+}
+
+// 絵文字判定（Unicode絵文字プロパティを利用）
+function isEmoji(str) {
+  // Emoji_Presentation または Emoji + Variation Selector にマッチ
+  const emojiRegex = /^\p{Emoji}$/u;
+  // 数字・記号など単独でEmojiプロパティを持つものを除外（0-9 # * など）
+  const excludeRegex = /^[\d#*]$/;
+  return emojiRegex.test(str) && !excludeRegex.test(str);
+}
+
+function extractEmoji(raw) {
+  // 絵文字セグメンタで1文字ずつ切り出す（ZWJ連結・バリエーションセレクタ考慮）
+  if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+    const seg = new Intl.Segmenter('ja', {granularity:'grapheme'});
+    for (const {segment} of seg.segment(raw)) {
+      if (isEmoji(segment)) return segment;
+    }
+    return null;
+  }
+  // フォールバック: スプレッド展開
+  const chars = [...raw];
+  for (const c of chars) {
+    if (isEmoji(c)) return c;
+  }
+  return null;
+}
+
+function onEmojiInput(input) {
+  const raw = input.value;
+  if (!raw) {
+    updateEmojiHint('', null);
+    return;
+  }
+  const emoji = extractEmoji(raw);
+  if (emoji) {
+    input.value = emoji; // 絵文字だけ残す
+    updateEmojiHint(emoji, true);
+  } else {
+    input.value = ''; // 絵文字以外は即削除
+    updateEmojiHint('', false);
+  }
+}
+
+function updateEmojiHint(emoji, ok) {
+  const hint = document.getElementById('emojiHint');
+  if (ok === true) {
+    hint.textContent = '✅ OK！';
+    hint.style.color = '#3d9e47';
+  } else if (ok === false) {
+    hint.textContent = '❌ えもじのみ';
+    hint.style.color = '#c04040';
+    setTimeout(() => {
+      hint.innerHTML = 'えもじキーボードで<br>えらんでね';
+      hint.style.color = '#aaa';
+    }, 1200);
+  } else {
+    hint.innerHTML = 'えもじキーボードで<br>えらんでね';
+    hint.style.color = '#aaa';
+  }
+}
+
+function addItem() {
+  const raw = document.getElementById('addEmoji').value.trim();
+  const emoji = extractEmoji(raw);
+  const unit  = document.getElementById('addUnitSelect').value;
+  if (!emoji) { 
+    updateEmojiHint('', false);
+    return;
+  }
+  if (!unit) { alert('たんいを えらんでね！'); return; }
+  settings.items.push({emoji, unit, on: true});
+  document.getElementById('addEmoji').value = '';
+  updateEmojiHint('', null);
+  saveSettings();
+  renderItemList();
+}
+
+function saveAndBack() {
+  settings.childName = document.getElementById('childNameInput').value.trim();
+  saveSettings();
+  showScreen('topScreen');
+}
+
+// ===== 問題生成 =====
+function newQuestion() {
+  qNum++;
+  selNum = null; selUnit = null;
+  document.getElementById('checkBtn').disabled = true;
+
+  document.getElementById('progLabel').textContent = `${qNum}/${settings.qCount}もんめ`;
+  document.getElementById('progFill').style.width = ((qNum-1)/settings.qCount*100)+'%';
+  document.getElementById('progScore').textContent = '⭕'+scoreOk;
+
+  // アイテムプール
+  let pool = settings.items.filter(it => it.on);
+  if (gameMode === 2) {
+    const p2 = pool.filter(it => settings.enabledUnits[it.unit]);
+    if (p2.length > 0) pool = p2;
+  }
+  if (pool.length === 0) pool = settings.items;
+
+  curItem  = pool[Math.floor(Math.random()*pool.length)];
+  curCount = settings.rangeMin + Math.floor(Math.random()*(settings.rangeMax - settings.rangeMin + 1));
+
+  // イラスト表示
+  const grid = document.getElementById('emojiGrid');
+  grid.innerHTML = '';
+  for (let i=0; i<curCount; i++) {
+    const s = document.createElement('span');
+    s.className = 'emoji-item';
+    s.textContent = curItem.emoji;
+    s.style.animationDelay = (i*0.055)+'s';
+    grid.appendChild(s);
+  }
+
+  // 数字パッド（電卓レイアウト 3列×4行固定）
+  const nb = document.getElementById('numBtns');
+  nb.innerHTML = '';
+  nb.style.gridTemplateColumns = ''; // リセット
+  const rangeMin = settings.rangeMin;
+  const rangeMax = settings.rangeMax;
+
+  if (rangeMax <= 10) {
+    // 固定レイアウト: 1-2-3 / 4-5-6 / 7-8-9 / □-10-□
+    const layout = [1,2,3,4,5,6,7,8,9,null,10,null];
+    layout.forEach(n => {
+      const b = document.createElement('button');
+      if (n === null || n < rangeMin || n > rangeMax) {
+        b.className = 'numpad-btn empty';
+      } else {
+        b.className = `numpad-btn c${(n-1)%10}`;
+        b.textContent = n;
+        b.onclick = () => pickNum(n, b);
+      }
+      nb.appendChild(b);
+    });
+  } else {
+    // 11以上: 4列グリッドで自動展開
+    nb.style.gridTemplateColumns = 'repeat(4,1fr)';
+    nb.style.gridTemplateRows = '';
+    for (let n=rangeMin; n<=rangeMax; n++) {
+      const b = document.createElement('button');
+      b.className = `numpad-btn c${(n-1)%10}`;
+      b.textContent = n;
+      b.onclick = () => pickNum(n, b);
+      nb.appendChild(b);
+    }
+  }
+
+  // 単位ボタン（2×2固定 = 常に4個）
+  if (gameMode === 2) {
+    const correct = curItem.unit;
+    const allUnits = [...new Set(pool.map(it=>it.unit))];
+    const others = allUnits.filter(u => u !== correct);
+    shuffle(others);
+    // 正解1つ＋ダミー3つ（足りなければダミーを繰り返し埋める）
+    const dummies = [];
+    while (dummies.length < 3) {
+      if (others.length > 0) dummies.push(...others);
+      else dummies.push(correct); // 選択肢がない極端なケース
+    }
+    const shown = [correct, ...dummies.slice(0,3)];
+    shuffle(shown);
+    const ub = document.getElementById('unitBtns');
+    ub.innerHTML = '';
+    shown.forEach(u => {
+      const b = document.createElement('button');
+      b.className = 'unit-btn';
+      b.textContent = u;
+      b.onclick = () => pickUnit(u, b);
+      ub.appendChild(b);
+    });
+  }
+}
+
+function pickNum(n, btn) {
+  selNum = n;
+  document.querySelectorAll('.numpad-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  tryEnable();
+}
+function pickUnit(u, btn) {
+  selUnit = u;
+  document.querySelectorAll('.unit-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  tryEnable();
+}
+function tryEnable() {
+  document.getElementById('checkBtn').disabled =
+    !(selNum !== null && (gameMode===1 || selUnit !== null));
+}
+
+// ===== 答え合わせ =====
+function checkAnswer() {
+  const ok = selNum === curCount && (gameMode===1 || selUnit === curItem.unit);
+  const isLast = qNum >= settings.qCount;
+  if (ok) {
+    scoreOk++;
+    const msgs = ['すごい！ぴったり！','やったね！せいかい！','かんぺき！えらい！','すばらしい！！','さすが！！'];
+    document.getElementById('ovCorrectMsg').textContent = msgs[Math.floor(Math.random()*msgs.length)];
+    document.getElementById('ovNextBtn').textContent = isLast ? 'けっかを みる 🎊' : 'つぎへ ▶';
+    document.getElementById('ovCorrect').classList.add('show');
+    if (settings.sfx) { launchConfetti(); playClap(); }
+    else { launchConfetti(); }
+  } else {
+    scoreNg++;
+    let hint = `こたえは ${curCount}`;
+    if (gameMode===2) hint += curItem.unit;
+    hint += ' だよ！';
+    document.getElementById('ovWrongMsg').textContent = hint;
+    document.getElementById('ovWrongNextBtn').textContent = isLast ? 'けっかを みる 🎊' : 'つぎへ ▶';
+    document.getElementById('ovWrong').classList.add('show');
+  }
+}
+
+function nextQ() {
+  document.getElementById('ovCorrect').classList.remove('show');
+  if (qNum >= settings.qCount) { showResult(); return; }
+  newQuestion();
+}
+function dismissWrong() {
+  document.getElementById('ovWrong').classList.remove('show');
+  if (qNum >= settings.qCount) { showResult(); return; }
+  newQuestion();
+}
+
+// ===== リザルト =====
+function showResult() {
+  showScreen('resultScreen');
+  const name = settings.childName.trim();
+  document.getElementById('resultTo').textContent = name ? `${name}ちゃんの けっか` : '';
+  document.getElementById('rCorrect').textContent = scoreOk;
+  document.getElementById('rWrong').textContent   = scoreNg;
+  document.getElementById('resultBig').innerHTML  = `${scoreOk}<span>せいかい</span>`;
+  document.getElementById('resultOf').textContent = `${settings.qCount}もんちゅう`;
+
+  const pct = scoreOk / settings.qCount;
+  let stars = '';
+  if      (pct === 1)   stars = '⭐⭐⭐';
+  else if (pct >= 0.7)  stars = '⭐⭐';
+  else if (pct >= 0.4)  stars = '⭐';
+  document.getElementById('resultStars').textContent = stars;
+
+  const msgs = [
+    [1.0,  'ぜんもん せいかい！かんぺき！すごすぎる！！🎉'],
+    [0.9,  'ほぼかんぺき！とってもえらい！'],
+    [0.7,  'よくできました！つぎは もっと いけるよ！'],
+    [0.4,  'がんばったね！なんどでも れんしゅうしよう！'],
+    [0,    'だいじょうぶ！またいっしょにやってみよう！'],
+  ];
+  const msg = msgs.find(([s]) => pct >= s);
+  document.getElementById('rMsg').textContent = (name ? name+'ちゃん、' : '') + msg[1];
+
+  if (pct >= 0.8 && settings.sfx) { launchConfetti(); playClap(); }
+  else if (pct >= 0.8) { launchConfetti(); }
+}
+
+function retryGame() {
+  showScreen('gameScreen');
+  qNum = 0; scoreOk = 0; scoreNg = 0;
+  newQuestion();
+}
+
+// ===== SFX =====
+function playClap() {
+  try {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    for (let i=0; i<7; i++) {
+      setTimeout(()=>{
+        const buf=ctx.createBuffer(1,ctx.sampleRate*0.12,ctx.sampleRate);
+        const d=buf.getChannelData(0);
+        for(let j=0;j<d.length;j++) d[j]=(Math.random()*2-1)*Math.pow(1-j/d.length,3);
+        const src=ctx.createBufferSource();src.buffer=buf;
+        const g=ctx.createGain();g.gain.value=0.55;
+        const f=ctx.createBiquadFilter();f.type='bandpass';f.frequency.value=1200+Math.random()*400;
+        src.connect(f);f.connect(g);g.connect(ctx.destination);src.start();
+      }, i*145+Math.random()*40);
+    }
+  } catch(e){}
+}
+
+// ===== 紙吹雪 =====
+let cfFrame;
+function launchConfetti() {
+  const cv=document.getElementById('confettiCanvas');
+  cv.width=innerWidth;cv.height=innerHeight;
+  const ctx=cv.getContext('2d');
+  const colors=['#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#C77DFF','#FF8C42','#00C9A7'];
+  const ps=Array.from({length:110},()=>({
+    x:Math.random()*cv.width,y:-20,r:5+Math.random()*8,
+    color:colors[Math.floor(Math.random()*colors.length)],
+    vx:(Math.random()-.5)*6,vy:3+Math.random()*5,
+    angle:Math.random()*360,spin:(Math.random()-.5)*8,
+  }));
+  if(cfFrame)cancelAnimationFrame(cfFrame);
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);let alive=false;
+    ps.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.vy+=0.1;p.angle+=p.spin;
+      if(p.y<cv.height+20)alive=true;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle*Math.PI/180);
+      ctx.fillStyle=p.color;ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*0.5);
+      ctx.restore();
+    });
+    if(alive)cfFrame=requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,cv.width,cv.height);
+  }
+  draw();
+}
+
+function openPauseMenu() {
+  // 現在の進捗をメニューに表示
+  document.getElementById('pauseInfo').innerHTML =
+    `${qNum} / ${settings.qCount} もんめ<br>⭕ ${scoreOk} こ せいかい`;
+  document.getElementById('ovPause').classList.add('show');
+}
+
+function closePauseMenu() {
+  document.getElementById('ovPause').classList.remove('show');
+}
+
+function goTopFromGame() {
+  document.getElementById('ovPause').classList.remove('show');
+  showScreen('topScreen');
+}
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
+</script>
+</body>
+</html>
